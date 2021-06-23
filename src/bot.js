@@ -24,6 +24,5 @@ client.on("message", (message) => {
     comd(message, "lol", () => {
       message.channel.send("HAHAHAHAHAHAHA!!!");
     });
-    // comd(message, "");
   }
 });
