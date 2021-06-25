@@ -2,6 +2,7 @@ require("dotenv").config(); //to use or sensitive key values as env variables.
 const { Client, MessageEmbed } = require("discord.js"); // import discord.js module
 const { movieEmbed } = require("./components/MovieEmbed"); // message embed template
 const https = require("https");
+const genreData = require("./assets/list.json");
 
 const client = new Client();
 const Prefix = "?";
@@ -9,9 +10,11 @@ const Prefix = "?";
 const TMDB = {
   baseUrl: "https://api.themoviedb.org/3/search/movie?",
   apiKey: process.env.TMDB_KEY,
+  imageUrl: "https://image.tmdb.org/t/p/w780",
+  genreUrl:
+    "https://api.themoviedb.org/3/genre/movie/list?api_key=93fa115269528746f71c1478722e6709&language=en-US",
 };
-//api_key={APIKEY}&language=en-US&query=prince%20of%20persia&page=1&include_adult=false
-
+//https://api.themoviedb.org/3/movie/{movie_id}/images?api_key=<<api_key>>&language=en-US
 const searchQuery = (query, message) => {
   var movie = "some";
   https
@@ -26,12 +29,26 @@ const searchQuery = (query, message) => {
             message.channel.send(
               MovieInfo.results.length === 0
                 ? "No results found!! Check the spelling"
-                : MovieInfo.results[0].overview
+                : movieEmbed({
+                    title: `${
+                      MovieInfo.results[0].original_title
+                    } (${genreData.genres
+                      .filter((a) =>
+                        MovieInfo.results[0].genre_ids.includes(a.id)
+                      )
+                      .map((a) => a.name)
+                      .join(" | ")})`,
+                    color: 0xa33de7,
+                    info: MovieInfo.results[0].overview,
+                    image: `${TMDB.imageUrl}${MovieInfo.results[0].poster_path}`,
+                    footer: `Released on: ${MovieInfo.results[0].release_date}`,
+                    footerIcon:
+                      "https://cdn.mee6.xyz/guild-images/726801721829097532/eb7970b806ebf307f873dfc29c55c03774ff744268397142ef6cb1c2bfb12567.jpeg",
+                  })
             );
           } catch (error) {
-            message.channel.send(error);
+            message.channel.send(`error is: ${error}`);
           }
-          // console.log(JSON.stringify(MovieInfo));
         });
       }
     )
@@ -40,11 +57,11 @@ const searchQuery = (query, message) => {
     });
 };
 
-function comd(message, name, action) {
-  if (message.content === "?" + name) {
-    action();
-  }
-}
+// function comd(message, name, action) {
+//   if (message.content === "?" + name) {
+//     action();
+//   }
+// }
 
 client.on("ready", () => console.log(`${client.user.username} Up and running`));
 
@@ -63,12 +80,6 @@ client.on("message", (message) => {
     });
 
     comd("repeat", () => {
-      console.log(
-        message.content
-          .split(" ")
-          .slice(1, message.content.length - 1)
-          .join(" ")
-      );
       message.channel.send(
         message.content
           .split(" ")
@@ -78,9 +89,6 @@ client.on("message", (message) => {
     });
 
     comd("search", () => {
-      // console.log(
-
-      // );
       searchQuery(
         message.content
           .split(" ")
@@ -88,9 +96,6 @@ client.on("message", (message) => {
           .join(" "),
         message
       );
-      // message.channel.send(
-
-      // );
     });
 
     comd("embed", () => {
