@@ -11,10 +11,10 @@ const TMDB = {
   baseUrl: "https://api.themoviedb.org/3/search/movie?",
   apiKey: process.env.TMDB_KEY,
   imageUrl: "https://image.tmdb.org/t/p/w780",
-  genreUrl:
-    "https://api.themoviedb.org/3/genre/movie/list?api_key=93fa115269528746f71c1478722e6709&language=en-US",
+  videoUrl: "https://api.themoviedb.org/3/movie/",
 };
 //https://api.themoviedb.org/3/movie/{movie_id}/images?api_key=<<api_key>>&language=en-US
+// https://api.themoviedb.org/3/movie/9543/videos?api_key=93fa115269528746f71c1478722e6709&language=en-US
 const searchQuery = (query, message) => {
   var movie = "some";
   https
@@ -26,6 +26,30 @@ const searchQuery = (query, message) => {
         resp.on("data", (d) => {
           try {
             const MovieInfo = JSON.parse(d);
+            if (MovieInfo.results.length != 0) {
+              var videoLink = https.get(
+                `${TMDB.videoUrl}${MovieInfo.results[0].id}/videos?api_key=${process.env.TMDB_KEY}&language=en-US`,
+                (resp) => {
+                  resp.on("data", (d) => {
+                    const videoInfo = JSON.parse(d);
+                    videoInfo.results.length === 0
+                      ? ""
+                      : videoInfo.results.map((a) => {
+                          message.channel.send(
+                            movieEmbed({
+                              title: "Trailer",
+                              link: `https://youtube.com/watch?v=${a.key}`,
+                              color: 0xa33de7,
+                              info: a.name,
+                              footer: "Youtube",
+                            })
+                          );
+                        });
+                  });
+                }
+              );
+              // console.log(videoLink);
+            }
             message.channel.send(
               MovieInfo.results.length === 0
                 ? "No results found!! Check the spelling"
@@ -44,6 +68,7 @@ const searchQuery = (query, message) => {
                     footer: `Released on: ${MovieInfo.results[0].release_date}`,
                     footerIcon:
                       "https://cdn.mee6.xyz/guild-images/726801721829097532/eb7970b806ebf307f873dfc29c55c03774ff744268397142ef6cb1c2bfb12567.jpeg",
+                    // link: videoLink,
                   })
             );
           } catch (error) {

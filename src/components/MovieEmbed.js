@@ -12,6 +12,7 @@ const movieEmbed = (args) => {
       .setDescription(info)
       .setImage(image)
       .setFooter(footer, footerIcon)
+      .setURL(link)
   );
 };
 module.exports = { movieEmbed };
