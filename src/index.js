@@ -27,10 +27,11 @@ const searchQuery = (query, message) => {
           try {
             const MovieInfo = JSON.parse(d);
             if (MovieInfo.results.length != 0) {
-              var videoLink = https.get(
+              https.get(
                 `${TMDB.videoUrl}${MovieInfo.results[0].id}/videos?api_key=${process.env.TMDB_KEY}&language=en-US`,
                 (resp) => {
                   resp.on("data", (d) => {
+                    console.log("first");
                     const videoInfo = JSON.parse(d);
                     videoInfo.results.length === 0
                       ? ""
