@@ -5,7 +5,7 @@ const https = require("https");
 const genreData = require("./assets/list.json");
 
 const client = new Client();
-const Prefix = "?";
+const Prefix = "+";
 
 const TMDB = {
   baseUrl: "https://api.themoviedb.org/3/search/movie?",
